@@ -32,6 +32,7 @@ if (!$result) {
 
 // Convert the result set to a JSON object
 $data = array();
+
 while ($row = mysqli_fetch_assoc($result)) {
   $data[] = $row;
 }
