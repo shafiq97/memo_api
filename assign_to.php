@@ -6,9 +6,14 @@ error_reporting(E_ALL);
 // Check if the request method is PUT
 if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
   // Get the memo ID from the request body
-  parse_str(file_get_contents("php://input"), $_PUT);
-  $memoId = $_PUT['memo_id'];
-  $isApprove = $_PUT['is_approved'];
+
+
+  // Get the memo ID from the request body
+  $request_body = file_get_contents("php://input");
+  $data = json_decode($request_body);
+  $user_id = $data->text;
+  $memoId = $data->memo_id;
+
   
   // Connect to the database
   $servername = "localhost";
@@ -23,15 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
   }
   
   // Update the status of the memo with the given ID in the database using an SQL query
-  if($isApprove == "true"){
-    $sql = "UPDATE memos SET status = 'approved' WHERE id = $memoId";
-  }else{
-    $sql = "UPDATE memos SET status = 'declined' WHERE id = $memoId";
-  }
+  $sql = "UPDATE memos SET assignee_id = '$user_id' WHERE id = '$memoId'";
+
   if ($conn->query($sql) === TRUE) {
     // Send a success response
     http_response_code(200);
-    echo json_encode(array("message" => "Memo status updated successfully."));
+    echo json_encode(array("message" => $user_id . " ". $memoId));
   } else {
     // Send an error response
     http_response_code(500);

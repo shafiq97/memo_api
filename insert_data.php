@@ -25,9 +25,27 @@ $reference = $_POST['reference'];
 $date = $_POST['date'];
 $subject = $_POST['subject'];
 
+// Handle the file upload
+if (isset($_FILES['file'])) {
+  $file = $_FILES['file'];
+
+  // Define the target directory and file name
+  $targetDir = "uploads/";
+  $targetFile = $targetDir . basename($file["name"]);
+
+  // Move the uploaded file to the target directory
+  if (move_uploaded_file($file["tmp_name"], $targetFile)) {
+    echo "File uploaded: " . $targetFile . "\n";
+  } else {
+    echo "Error uploading file\n";
+  }
+} else {
+  echo "No file received\n";
+}
+
 // Prepare the SQL query
-$stmt = $conn->prepare("INSERT INTO memos (sender_name, recipient_name, cc, reference, date, subject) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $sender_name, $recipient_name, $cc, $reference, $date, $subject);
+$stmt = $conn->prepare("INSERT INTO memos (sender_name, recipient_name, cc, reference, date, subject, image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("sssssss", $sender_name, $recipient_name, $cc, $reference, $date, $subject, $basename($file["name"]));
 
 // Execute the query
 if ($stmt->execute() === TRUE) {
@@ -38,5 +56,4 @@ if ($stmt->execute() === TRUE) {
 
 // Close the connection
 $stmt->close();
-$conn->close();
 ?>
